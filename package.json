@@ -1,0 +1,16 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "A simple Discord bot",
+  "main": "src/bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "discord.js": "^14.0.0",
+    "dotenv": "^10.0.0",
+    "ollama": "^0.5.9"
+  }
+}
