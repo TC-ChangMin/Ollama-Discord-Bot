@@ -1,55 +1,57 @@
-import { Client, Events, GatewayIntentBits, Partials } from "discord.js";
+import { Client, GatewayIntentBits } from 'discord.js';
 import dotenv from "dotenv";
-import axios from "axios";
-
+import ollama from 'ollama';
 dotenv.config();
 
-console.log(`OLLAMA: ${process.env.OLLAMA}`); // Debugging line
-
+// Create a new client instance
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ],
-    partials: [Partials.Channel]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
 });
 
-console.log('Attempting to log in...'); // Debugging line
 
-client.once(Events.ClientReady, async () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-    await checkServerStatus();
+client.once('ready', () => {
+  console.log(`Logged in as ${client.user.tag}`);
 });
 
-async function checkServerStatus() {
-    const server = process.env.OLLAMA;
+// Event listener for when a message is received
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
 
-    console.log(`Checking server status for: ${server}`); // Debugging line
+  const filter = message.content
+  if (filter.toLowerCase().includes('brian')) { 
+    await message.channel.send("Never heard of him.");
+  }
 
+  if (message.mentions.has(client.user)) {
+    // error check
+    const userMessage = message.content.replace(`<@!${client.user.id}>`, '').replace(/\s+/g, '').trim(); // bot breaks if it has <@...>. this trims it
+    if (userMessage.length === `<@${client.user.id}>`.length) {
+        await message.channel.send("You didn't say anything!");
+        return;
+    }
+
+      
+    // Create the message object for ollama
+    const promptMessage = { role: 'user', content: userMessage };
+
+    await message.channel.send('One moment while I generate a response...');
     try {
-        const response = await axios.get(server);
-        console.log(`Server is running: ${response.data}`);
+      const response = await ollama.chat({
+        model: 'llama2',
+        messages: [promptMessage],
+      });
+
+      await message.channel.send(response.message.content);
     } catch (error) {
-        console.error(`Error checking server status: ${error}`);
+      console.error('Error while processing the message:', error);
+      await message.channel.send("Sorry, I couldn't process your message.");
     }
-}
-
-
-
-//==================================================================================================
-client.on(Events.MessageCreate, async (message) => {
-    // Ignore messages from the bot itself
-    if (message.author.bot) return;
-
-    // Check if the message mentions the bot
-    if (message.mentions.has(client.user)) {
-
-        const userMessage = message.content;
-        console.log(`Bot has been pinged. Message content: ${userMessage}`)
-    }
+  } 
 });
 
-client.login(process.env.TOKEN).catch(error => {
-    console.error(`Error logging in: ${error}`);
-});
+// Log in to Discord with your bot's token
+client.login(process.env.TOKEN);
