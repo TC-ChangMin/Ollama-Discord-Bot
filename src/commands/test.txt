@@ -1,0 +1,18 @@
+// Create the prompt message
+        /*
+        const promptMessage = { role: 'user', content: userMessage };
+
+        await interaction.reply('One moment while I generate a response...'); // Acknowledge the interaction
+        try {
+            // Call the Ollama chat function
+            const response = await ollama.chat({
+                model: 'llama2',
+                messages: [promptMessage],
+            });
+
+            // Send the response back to the channel
+            await interaction.followUp(response.message.content); // Using followUp for a new message
+        } catch (error) {
+            console.error('Error while processing the message:', error);
+            await interaction.followUp("Sorry, I couldn't process your message.");
+        } */
