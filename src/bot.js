@@ -16,23 +16,49 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
+
+
 // Event listener for interactions (including slash commands)
 client.on('interactionCreate', async (interaction) => {
   try {
     if (interaction.isCommand()) { // Check if the interaction is a command
       const { commandName } = interaction;
 
-      if (commandName === 'ping') {
-        await interaction.reply('Pong!');
+      if (commandName === 'add') {
+        const num1 = interaction.options.getNumber('num1');
+        const num2 = interaction.options.getNumber('num2');
+        await interaction.reply(`The sum is ${num1 + num2}`);
       }
+      if (commandName === 'chat') {
+        const promptInput = interaction.options.getString('your-message');
+        const promptMessage = { role: 'user', content: promptInput };
 
-      // Add more command handling logic here as needed
+        await interaction.reply('One moment while I generate a response...'); // Acknowledge the interaction
+        try {
+            // Call the Ollama chat function
+            const response = await ollama.chat({
+                model: 'llama2',
+                messages: [promptMessage],
+            });
+
+            // Send the response back to the channel
+            await interaction.followUp(response.message.content); // Using followUp for a new message
+        } catch (error) {
+            console.error('Error while processing the message:', error);
+            await interaction.followUp("Sorry, I couldn't process your message.");
+        }
+      }
+      
     }
   } catch (error) {
     console.error('Error handling interaction:', error);
     await interaction.reply('There was an error while executing this command!');
   }
 });
+
+
+
+
 
 // Event listener for when a message is received
 client.on('messageCreate', async (message) => {
