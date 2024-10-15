@@ -17,7 +17,8 @@ client.once('ready', () => {
 });
 
 
-
+// should change if else cases to switch cases (change commands to prefix commands and splice the prefix)
+// swtich cases -> oop. could also just do this in py if you prefer py
 // Event listener for interactions (including slash commands)
 client.on('interactionCreate', async (interaction) => {
   try {
@@ -30,15 +31,15 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply(`The sum is ${num1 + num2}`);
       }
       if (commandName === 'chat') {
-        const promptInput = interaction.options.getString('your-message');
-        const promptMessage = { role: 'user', content: promptInput };
-
-        await interaction.reply('One moment while I generate a response...'); // Acknowledge the interaction
+        const chatPromptInput = interaction.options.getString('your-message');
+        const chatPromptMessage = { role: 'user', content: chatPromptInput };
+        await interaction.reply('One moment while I generate a response...');
+        
         try {
             // Call the Ollama chat function
             const response = await ollama.chat({
-                model: 'llama2',
-                messages: [promptMessage],
+                model: 'llama3.1',
+                messages: [chatPromptMessage],
             });
 
             // Send the response back to the channel
@@ -48,7 +49,22 @@ client.on('interactionCreate', async (interaction) => {
             await interaction.followUp("Sorry, I couldn't process your message.");
         }
       }
-      
+      if (commandName === 'generate') {
+        const generatePromptInput = interaction.options.getString('your-message');
+        await interaction.reply('One moment while I generate a response...');
+
+        try {
+          const generateResponse = await ollama.generate({
+            model: 'llama3.1',
+            prompt: `${generatePromptInput}`,
+          })
+            await interaction.followUp(generateResponse.response);
+        } catch (error) {
+            console.error('Error while processing the message:', error);
+            await interaction.followUp("Sorry, I couldn't process your message.");
+        }
+      }
+          
     }
   } catch (error) {
     console.error('Error handling interaction:', error);
@@ -57,7 +73,8 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 
-
+// two new features + rewrite in python
+// use RAG to generate a response based on people's data
 
 
 // Event listener for when a message is received
@@ -78,7 +95,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // Uncomment this to use the Ollama chat functionality
-    /*
+    
     const promptMessage = { role: 'user', content: userMessage };
 
     await message.channel.send('One moment while I generate a response...');
@@ -92,7 +109,7 @@ client.on('messageCreate', async (message) => {
     } catch (error) {
       console.error('Error while processing the message:', error);
       await message.channel.send("Sorry, I couldn't process your message.");
-    } */
+    } 
   }
 });
 
