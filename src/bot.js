@@ -17,7 +17,7 @@ client.once('ready', () => {
 });
 
 
-// should change if else cases to switch cases (change commands to prefix commands and splice the prefix)
+// should change if else cases to switch cases (change commands to prefix commands and splice the prefix)`
 // swtich cases -> oop. could also just do this in py if you prefer py
 // Event listener for interactions (including slash commands)
 client.on('interactionCreate', async (interaction) => {
@@ -81,9 +81,17 @@ client.on('interactionCreate', async (interaction) => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  await message.channel.send("Brain mentioned RAHHHHHH");
   const filter = message.content;
   if (filter.toLowerCase().includes('brian')) { 
-    await message.channel.send("Never heard of him.");
+    const alertBrian = await ollama.chat({
+      model: 'llama3.1',
+      messages: [
+        { role: 'system', content: "Brian is a giga chad student amongst the people in dominican university's and Dev Degree's Applied Computer Science program. No further context is needed." },
+        { role: 'user', content: 'brian' }
+      ],
+    })
+    await message.channel.send(alertBrian.message.content);
   }
 
   if (message.mentions.has(client.user)) {
